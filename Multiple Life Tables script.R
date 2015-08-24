@@ -36,6 +36,8 @@ data$uf <- "SP"
 temp <- data
 temp$uf <- "RJ" ; temp$nMx <- temp$nMx *1.3
 data <- rbind(data,temp)
+temp$uf <- "MG" ; temp$nMx <- temp$nMx *4
+data <- rbind(data,temp)
 
 # create year data
 data$year <- 2008
