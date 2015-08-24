@@ -2,6 +2,8 @@
 # so we can compute multiple Period Life Tables for 
 # different groups with one single function
 
+# Load packages
+library(data.table)
 
 
 ##############################################################################################################################
