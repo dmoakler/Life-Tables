@@ -49,6 +49,9 @@ data <- rbind(data,temp)
 setnames(data, "Gender", "sex")  
 
 
+# create unique ID for each life table
+data <- data.table(data)
+data[ , tableid := with(data, paste0(uf, sex, year))]
 
 
 ##############################################################################################################################
@@ -116,6 +119,7 @@ life.table <- function( x, dataset, nMx){
 
 
 # Get the Life Table of only one group, for example:
+  LIFETABLE <- data.table(LIFETABLE)
   SPFemale2008 <- LIFETABLE[tableid =="SPFemale2008",]
   Men <- LIFETABLE[sex =="Male",]
 
