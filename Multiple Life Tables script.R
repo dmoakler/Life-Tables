@@ -1,17 +1,8 @@
-##############################################################################################################################
-##R CODE FOR A PERIOD LIFE TABLE, REPRODUCED FROM ONLINE MATERIALS FOR THE 2006 FORMAL DEMOGRAPHY WORKSHOP AT STANFORD UNIVERSITY
-##THE ORIGINAL POSTING OF THIS CODE IS AVAILABLE AT: http://www.stanford.edu/group/heeh/cgi-bin/web/node/75
-##
-##NOTE: I (EDDIE HUNSINGER) REPRODUCED THE CODE HERE TO PROVIDE AN IMMEDIATE LINK TO INPUT DATA FOR QUICK REVIEW BY POTENTIAL USERS
-##FEBRUARY 2011 (LAST UPDATED FEBRUARY 12, 2011)
-##edynivn@gmail.com
-##
-##IF YOU WOULD LIKE TO USE, SHARE OR REPRODUCE THIS CODE, BE SURE TO CITE THE SOURCE
-##
-##EXAMPLE DATA IS LINKED, SO YOU SHOULD BE ABLE TO SIMPLY COPY ALL AND PASTE INTO R
-##
-##THERE IS NO WARRANTY FOR THIS CODE
-##############################################################################################################################
+# This is an adaptation of EDDIE HUNSINGER's R script 
+# so we can compute multiple Period Life Tables for 
+# different groups with one single function
+
+
 
 ##############################################################################################################################
 #STEP 1: Read in and review the population and death data
@@ -20,15 +11,51 @@
 females<-read.table(file="http://www.demog.berkeley.edu/~eddieh/AppliedDemographyToolbox/StanfordCourseLifeTable/StanfordCourseMortalityData.csv",header=TRUE,sep=",")
 females
 
+
+
+
+
+##############################################################################################################################
+# NEW STEP - Create hypotetical data
+##############################################################################################################################
+
+# Compute Mortality rates (nMx) within data table
+females$nMx <- females$Death.Count/females$Population
+
+#create Men data
+temp <- females
+temp$Gender <- "Male"
+temp$nMx <- temp$nMx *2
+data <- rbind(females,temp)
+
+# create state data
+data$uf <- "SP"
+temp <- data
+temp$uf <- "RJ" ; temp$nMx <- temp$nMx *1.3
+data <- rbind(data,temp)
+
+# create year data
+data$year <- 2008
+temp <- data
+temp$year <- 2010 ; temp$nMx <- temp$nMx *1.4
+data <- rbind(data,temp)
+
+# change variable name
+setnames(data, "Gender", "sex")  
+
+
+
+
 ##############################################################################################################################
 #STEP 2: Read in or create the fundamental pieces of the life table (age groupings, deaths by age, population by age ->death rates by age
 ##############################################################################################################################
 
+# Age groups
 x <- c(0,1,5,10,15,20,25,35,45,55,65,75,85)
-#note that R collapses a single column to a vector when it pulls out the result out of a data.frame
-nDx <- females$Death.Count   #other syntax which produces the same result: females[[3]], females[,3], 
-nKx <- females$Population
-nMx <- nDx / nKx
+
+# Mortality rates (nMx) are now computed within data table. See previous step.
+
+
 
 ##############################################################################################################################
 #STEP 3: Read in the period life table function
@@ -37,6 +64,9 @@ nMx <- nDx / nKx
 life.table <- function( x, nMx){
   ## simple lifetable using Keyfitz and Flieger separation factors and 
   ## exponential tail of death distribution (to close out life table)
+  uf <- data$uf # ******************** 
+  sex <- data$sex # ********************
+  year <- data$year # ********************
   b0 <- 0.07;   b1<- 1.7;      
   nmax <- length(x)
   #nMx = nDx/nKx   
@@ -55,7 +85,7 @@ life.table <- function( x, nMx){
   nLx[nmax] <- lx[nmax]*nax[nmax]
   Tx <- rev(cumsum(rev(nLx)))
   ex <- ifelse( lx[1:nmax] > 0, Tx/lx[1:nmax] , NA);
-  lt <- data.frame(x=x,nax=nax,nmx=nMx,nqx=nqx,lx=lx,ndx=ndx,nLx=nLx,Tx=Tx,ex=ex)
+  lt <- data.frame(uf=uf,sex=sex,year=year,x=x,nax=nax,nmx=nMx,nqx=nqx,lx=lx,ndx=ndx,nLx=nLx,Tx=Tx,ex=ex)
   return(lt)
 }
 
@@ -63,7 +93,23 @@ life.table <- function( x, nMx){
 #STEP 4: Apply the function to the data, and review the created life table
 ##############################################################################################################################
 
-females.life.table<-life.table(x,nMx)
-females.life.table
+# Create All life tables into a single data set
+LIFETABLE <- life.table(x, data$nMx)
+LIFETABLE
 
-#write.table(###, file="G:/###/###.csv", sep=",")
+
+
+
+
+
+##############################################################################################################################
+#STEP 5: Visualize the data
+##############################################################################################################################
+
+ggplot() + geom_line(data = LIFETABLE, aes(x=x, y=nqx, colour = factor(sex))) +
+  facet_wrap(~uf)
+
+
+ggplot() + geom_line(data = LIFETABLE, aes(x=x, y=nqx, colour = factor(year))) +
+  facet_wrap(~sex+uf)
+
