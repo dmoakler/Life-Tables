@@ -94,19 +94,30 @@ life.table <- function( x, nMx){
 ##############################################################################################################################
 
 # Create All life tables into a single data set
-LIFETABLE <- life.table(x, data$nMx)
-LIFETABLE
+  groups <- unique(with(data, paste0(uf, sex, year)))
+  
+  for (i in groups){
+    print(i)
+    y <- data[tableid==i,]
+    LIFETABLE <- life.table(x, y$nMx)
+  }
 
 
+# get tableid back in the Life Table
+  LIFETABLE <- data.table(LIFETABLE) # Convert to Data table
+    LIFETABLE[ , tableid := with(LIFETABLE, paste0(uf, sex, year))]
 
 
+# Get the Life Table of only one group, for example:
+  SPFemale2008 <- LIFETABLE[tableid =="SPFemale2008",]
+  Men <- LIFETABLE[sex =="Male",]
 
 
 ##############################################################################################################################
 #STEP 5: Visualize the data
 ##############################################################################################################################
 
-ggplot() + geom_line(data = LIFETABLE, aes(x=x, y=nqx, colour = factor(sex))) +
+ggplot() + geom_line(data = LIFETABLE, aes(x=x, y=nqx, colour = factor(year))) +
   facet_wrap(~uf)
 
 
