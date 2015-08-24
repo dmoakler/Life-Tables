@@ -3,8 +3,7 @@ This R script computes a Period Life Table. The Script was originally produced b
 
 ---------------
 R CODE FOR A PERIOD LIFE TABLE, REPRODUCED FROM ONLINE MATERIALS FOR THE 2006 FORMAL DEMOGRAPHY WORKSHOP AT STANFORD UNIVERSITY
-THE ORIGINAL POSTING OF THIS CODE IS AVAILABLE AT: http://www.stanford.edu/group/heeh/cgi-bin/web/node/75
-OR http://www.demog.berkeley.edu/~eddieh/AppliedDemographyToolbox/StanfordCourseLifeTable/StanfordCourseLifeTableCode.txt
+THE ORIGINAL POSTING OF THIS CODE IS AVAILABLE [here](http://www.stanford.edu/group/heeh/cgi-bin/web/node/75) or [here] (http://www.demog.berkeley.edu/~eddieh/AppliedDemographyToolbox/StanfordCourseLifeTable/StanfordCourseLifeTableCode.txt).
 
 NOTE: I (EDDIE HUNSINGER) REPRODUCED THE CODE HERE TO PROVIDE AN IMMEDIATE LINK TO INPUT DATA FOR QUICK REVIEW BY POTENTIAL USERS
 FEBRUARY 2011 (LAST UPDATED FEBRUARY 12, 2011)
