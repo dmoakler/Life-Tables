@@ -1,5 +1,7 @@
 # Life-Tables
-This R script computes a Period Life Table. The Script was originally produced by EDDIE HUNSINGER.
+This R script computes a Period Life Table. The Script was originally produced by EDDIE HUNSINGER. 
+
+In this 'Multiple-Life-Tables' branch of this project, I have adapted EDDIE HUNSINGER's code so I  can apply it to a single data frame that contains Age-specific mortality rates of different population subgroups groups (states, sex, year) and compute separte life tables for each group. Output: the adapted function computes the Period Life Table of each group separately and bind all Life Tables into one big data frame, which makes it easier to plot and compare the mortality patterns of the different groups.
 
 ---------------
 R CODE FOR A PERIOD LIFE TABLE, REPRODUCED FROM ONLINE MATERIALS FOR THE 2006 FORMAL DEMOGRAPHY WORKSHOP AT STANFORD UNIVERSITY
