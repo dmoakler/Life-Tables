@@ -1,0 +1,114 @@
+> females<-read.table(file="http://www.demog.berkeley.edu/~eddieh/AppliedDemographyToolbox/StanfordCourseLifeTable/StanfordCourseMortalityData.csv",header=TRUE,sep=",")
+> females
+   Gender   Age.Description Death.Count
+1  Female      Under 1 Year       49016
+2  Female        1- 4 years        8689
+3  Female        5- 9 years        5595
+4  Female       10-14 years        6399
+5  Female       15-19 years       15621
+6  Female       20-24 years       17776
+7  Female       25-34 years       50896
+8  Female       35-44 years      131696
+9  Female       45-54 years      245138
+10 Female       55-64 years      394940
+11 Female       65-74 years      766829
+12 Female       75-84 years     1443183
+13 Female 85 years and over     1782749
+   Population Crude.Death.Rate
+1     7846166            624.7
+2    30110500             28.9
+3    39639456             14.1
+4    40360290             15.9
+5    39339459             39.7
+6    37857523             47.0
+7    79035547             64.4
+8    90536189            145.5
+9    78172750            313.6
+10   51980118            759.8
+11   40202118           1907.4
+12   30133845           4789.2
+13   12281209          14516.1
+> males
+Error: object 'males' not found
+> femael
+Error: object 'femael' not found
+> females
+   Gender   Age.Description Death.Count Population Crude.Death.Rate
+1  Female      Under 1 Year       49016    7846166            624.7
+2  Female        1- 4 years        8689   30110500             28.9
+3  Female        5- 9 years        5595   39639456             14.1
+4  Female       10-14 years        6399   40360290             15.9
+5  Female       15-19 years       15621   39339459             39.7
+6  Female       20-24 years       17776   37857523             47.0
+7  Female       25-34 years       50896   79035547             64.4
+8  Female       35-44 years      131696   90536189            145.5
+9  Female       45-54 years      245138   78172750            313.6
+10 Female       55-64 years      394940   51980118            759.8
+11 Female       65-74 years      766829   40202118           1907.4
+12 Female       75-84 years     1443183   30133845           4789.2
+13 Female 85 years and over     1782749   12281209          14516.1
+> 49016*7846166
+[1] 384587672656
+> 49016/7846166
+[1] 0.006247128
+> #STEP 2: Read in or create the fundamental pieces of the life table (age groupings, deaths by age, population by age ->death rates by age
+> ##############################################################################################################################
+> 
+> x <- c(0,1,5,10,15,20,25,35,45,55,65,75,85)
+> #note that R collapses a single column to a vector when it pulls out the result out of a data.frame
+> nDx <- females$Death.Count   #other syntax which produces the same result: females[[3]], females[,3], 
+> nKx <- females$Population
+> nMx <- nDx / nKx
+> 
+> ##############################################################################################################################
+> #STEP 3: Read in the period life table function
+> ##############################################################################################################################
+> 
+> life.table <- function( x, nMx){
++     ## simple lifetable using Keyfitz and Flieger separation factors and 
++     ## exponential tail of death distribution (to close out life table)
++     b0 <- 0.07;   b1<- 1.7;      
++     nmax <- length(x)
++     #nMx = nDx/nKx   
++     n <- c(diff(x),999)          		#width of the intervals
++     nax <- n / 2;		            	# default to .5 of interval
++     nax[1] <- b0 + b1 *nMx[1]    		# from Keyfitz & Flieger(1968)
++     nax[2] <- 1.5  ;              
++     nax[nmax] <- 1/nMx[nmax] 	  	# e_x at open age interval
++     nqx <- (n*nMx) / (1 + (n-nax)*nMx)
++     nqx<-ifelse( nqx > 1, 1, nqx);		# necessary for high nMx
++     nqx[nmax] <- 1.0
++     lx <- c(1,cumprod(1-nqx)) ;  		# survivorship lx
++     lx <- lx[1:length(nMx)]
++     ndx <- lx * nqx ;
++     nLx <- n*lx - nax*ndx;       		# equivalent to n*l(x+n) + (n-nax)*ndx
++     nLx[nmax] <- lx[nmax]*nax[nmax]
++     Tx <- rev(cumsum(rev(nLx)))
++     ex <- ifelse( lx[1:nmax] > 0, Tx/lx[1:nmax] , NA);
++     lt <- data.frame(x=x,nax=nax,nmx=nMx,nqx=nqx,lx=lx,ndx=ndx,nLx=nLx,Tx=Tx,ex=ex)
++     return(lt)
++ }
+> 
+> ##############################################################################################################################
+> #STEP 4: Apply the function to the data, and review the created life table
+> ##############################################################################################################################
+> 
+> females.life.table<-life.table(x,nMx)
+> females.life.table
+    x        nax          nmx          nqx        lx          ndx       nLx        Tx        ex
+1   0 0.08062012 0.0062471276 0.0062114522 1.0000000 0.0062114522 0.9994992 79.629657 79.629657
+2   1 1.50000000 0.0002885704 0.0011534496 0.9937885 0.0011462850 3.9734348 78.630158 79.121618
+3   5 2.50000000 0.0001411472 0.0007054873 0.9926423 0.0007002965 4.9614606 74.656723 75.210099
+4  10 2.50000000 0.0001585469 0.0007924206 0.9919420 0.0007860352 4.9577447 69.695262 70.261431
+5  15 2.50000000 0.0003970822 0.0019834422 0.9911559 0.0019659005 4.9508649 64.737517 65.315169
+6  20 2.50000000 0.0004695500 0.0023449973 0.9891900 0.0023196479 4.9401510 59.786653 60.440007
+7  25 5.00000000 0.0006439634 0.0064189662 0.9868704 0.0063346876 9.8370304 54.846502 55.576196
+8  35 5.00000000 0.0014546227 0.0144411950 0.9805357 0.0141601072 9.7345564 45.009471 45.902940
+9  45 5.00000000 0.0031358498 0.0308744101 0.9663756 0.0298362762 9.5145745 35.274915 36.502282
+10 55 5.00000000 0.0075979050 0.0731982823 0.9365393 0.0685530689 9.0226278 25.760340 27.505882
+11 65 5.00000000 0.0190743433 0.1741358026 0.8679862 0.1511474810 7.9241250 16.737712 19.283384
+12 75 5.00000000 0.0478924279 0.3863968604 0.7168388 0.2769842469 5.7834664  8.813587 12.295076
+13 85 6.88891650 0.1451607085 1.0000000000 0.4398545 0.4398545148 3.0301210  3.030121  6.888916
+> 
+> #write.table(###, file="G:/###/###.csv", sep=",")
+> 
